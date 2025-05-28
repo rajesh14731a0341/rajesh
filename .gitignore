@@ -1,0 +1,11 @@
+# Ignore Terraform state files and local directories
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfplan
+*.tfvars
+
+# Ignore other IDE/project specific files
+.vscode/
+*.log
