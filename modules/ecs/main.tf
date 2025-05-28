@@ -41,9 +41,9 @@ resource "aws_ecs_task_definition" "this" {
   volume {
     name = "grafana-storage"
     efs_volume_configuration {
-      file_system_id          = var.efs_id
-      root_directory          = "/grafana"
-      transit_encryption      = "ENABLED"
+      file_system_id     = var.efs_id
+      root_directory     = "/grafana"
+      transit_encryption = "ENABLED"
       authorization_config {
         access_point_id = null
         iam             = "DISABLED"
@@ -60,8 +60,8 @@ resource "aws_ecs_service" "this" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = var.subnet_ids
-    security_groups = [var.ecs_sg_id]
+    subnets          = var.subnet_ids
+    security_groups  = [var.ecs_sg_id]
     assign_public_ip = true
   }
 

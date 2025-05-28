@@ -17,7 +17,7 @@ variable "memory" {
 }
 
 variable "admin_password" {
-  type = string
+  type      = string
   sensitive = true
 }
 

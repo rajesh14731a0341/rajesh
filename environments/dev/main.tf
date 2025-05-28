@@ -24,14 +24,14 @@ module "efs" {
 }
 
 module "ecs" {
-  source                     = "../../modules/ecs"
-  environment                = var.environment
-  container_image            = var.container_image
-  cpu                        = 512
-  memory                     = 1024
-  admin_password             = var.admin_password
-  efs_id                     = module.efs.efs_id
-  subnet_ids                 = module.network.public_subnet_ids
-  ecs_sg_id                  = module.network.ecs_security_group_id
+  source                      = "../../modules/ecs"
+  environment                 = var.environment
+  container_image             = var.container_image
+  cpu                         = 512
+  memory                      = 1024
+  admin_password              = var.admin_password
+  efs_id                      = module.efs.efs_id
+  subnet_ids                  = module.network.public_subnet_ids
+  ecs_sg_id                   = module.network.ecs_security_group_id
   ecs_task_execution_role_arn = module.iam.ecs_task_execution_role_arn
 }
