@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  grafana:
+    image: grafana/grafana:9.4.7
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.0
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  grafana-data:
