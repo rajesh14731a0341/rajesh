@@ -1,16 +1,33 @@
+name: Deploy Grafana ECS Infrastructure
+
+on:
+  push:
+    branches:
+      - grafana-branch
+    paths:
+      - 'terraform/**'
+  workflow_dispatch:
+
 jobs:
   deploy:
     runs-on: self-hosted
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
       - name: Terraform Init
         working-directory: terraform
-        run: terraform init -backend-config="bucket=redshift-data-migration-bucket" -backend-config="key=grafana/terraform.tfstate" -backend-config="region=us-east-1"
+        run: |
+          terraform init \
+            -backend-config="bucket=redshift-data-migration-bucket" \
+            -backend-config="key=grafana/terraform.tfstate" \
+            -backend-config="region=us-east-1"
 
       - name: Terraform Plan
         working-directory: terraform
