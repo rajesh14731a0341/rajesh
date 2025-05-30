@@ -1,34 +1,48 @@
-name: Terraform Deploy
+name: Deploy Grafana ECS with Public Docker Hub Image
 
 on:
   push:
     branches:
       - grafana-branch
-    paths:
-      - 'terraform/**'
   workflow_dispatch:
 
+env:
+  AWS_REGION: us-east-1
+
 jobs:
-  terraform:
-    runs-on: self-hosted
+  deploy:
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.6
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
 
-    - name: Terraform Init
-      run: terraform -chdir=terraform init \
-        -backend-config="bucket=redshift-data-migration-bucket" \
-        -backend-config="key=grafana/terraform.tfstate" \
-        -backend-config="region=us-east-1"
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
 
-    - name: Terraform Plan
-      run: terraform -chdir=terraform plan -out=tfplan
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init -backend-config="bucket=redshift-data-migration-bucket" -backend-config="key=grafana/terraform.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
 
-    - name: Terraform Apply
-      run: terraform -chdir=terraform apply -auto-approve tfplan
+      - name: Terraform Format Check
+        working-directory: terraform
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve tfplan
