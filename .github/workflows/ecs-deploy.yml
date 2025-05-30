@@ -3,7 +3,7 @@ name: Deploy Grafana to ECS
 on:
   push:
     branches:
-      - main
+      - grafana-branch
 
 env:
   AWS_REGION: us-east-1
