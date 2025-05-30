@@ -1,4 +1,4 @@
-name: Deploy Grafana Infrastructure
+name: Terraform Deploy
 
 on:
   push:
@@ -13,23 +13,23 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.6
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.6
 
-      - name: Terraform Init
-        run: |
-          terraform -chdir=terraform init \
-            -backend-config="bucket=redshift-data-migration-bucket" \
-            -backend-config="key=grafana/terraform.tfstate" \
-            -backend-config="region=us-east-1"
+    - name: Terraform Init
+      run: |
+        terraform -chdir=terraform init \
+          -backend-config="bucket=redshift-data-migration-bucket" \
+          -backend-config="key=grafana/terraform.tfstate" \
+          -backend-config="region=us-east-1"
 
-      - name: Terraform Plan
-        run: terraform -chdir=terraform plan -out=tfplan
+    - name: Terraform Plan
+      run: terraform -chdir=terraform plan -out=tfplan
 
-      - name: Terraform Apply
-        run: terraform -chdir=terraform apply -auto-approve tfplan
+    - name: Terraform Apply
+      run: terraform -chdir=terraform apply -auto-approve tfplan
