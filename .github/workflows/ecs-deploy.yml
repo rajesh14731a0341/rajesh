@@ -1,4 +1,4 @@
-name: Deploy Terraform to AWS ECS
+name: Deploy Grafana Infrastructure
 
 on:
   push:
@@ -6,15 +6,11 @@ on:
       - grafana-branch
     paths:
       - 'terraform/**'
-      - '.github/workflows/**'
   workflow_dispatch:
 
 jobs:
   terraform:
     runs-on: self-hosted
-
-    env:
-      AWS_REGION: us-east-1
 
     steps:
       - name: Checkout repository
@@ -26,16 +22,14 @@ jobs:
           terraform_version: 1.5.6
 
       - name: Terraform Init
-        run: terraform init -backend-config="bucket=redshift-data-migration-bucket" \
-                             -backend-config="key=grafana/terraform.tfstate" \
-                             -backend-config="region=us-east-1" \
-                             terraform/
-
-      - name: Terraform Validate
-        run: terraform validate terraform/
+        run: |
+          terraform -chdir=terraform init \
+            -backend-config="bucket=redshift-data-migration-bucket" \
+            -backend-config="key=grafana/terraform.tfstate" \
+            -backend-config="region=us-east-1"
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan -input=false terraform/
+        run: terraform -chdir=terraform plan -out=tfplan
 
       - name: Terraform Apply
-        run: terraform apply -input=false -auto-approve tfplan
+        run: terraform -chdir=terraform apply -auto-approve tfplan
