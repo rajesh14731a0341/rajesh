@@ -1,4 +1,4 @@
-name: Deploy Grafana ECS with Public Docker Hub Image
+name: Deploy Grafana to ECS
 
 on:
   push:
@@ -11,15 +11,18 @@ env:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    name: Deploy to ECS
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Configure AWS CLI
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
@@ -29,7 +32,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: terraform
-        run: terraform init -backend-config="bucket=redshift-data-migration-bucket" -backend-config="key=grafana/terraform.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
+        run: terraform init
 
       - name: Terraform Format Check
         working-directory: terraform
