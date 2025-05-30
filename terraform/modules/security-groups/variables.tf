@@ -1,7 +1,9 @@
 variable "vpc_id" {
-  type = string
+  description = "The VPC ID where SGs will be created"
+  type        = string
 }
 
-variable "project_name" {
-  type = string
+variable "name_prefix" {
+  description = "Prefix to apply to SG names"
+  type        = string
 }

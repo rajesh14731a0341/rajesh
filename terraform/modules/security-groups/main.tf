@@ -1,66 +1,41 @@
-resource "aws_security_group" "ecs_tasks" {
-  name        = "${var.project_name}-ecs-tasks"
-  description = "Allow Grafana ports and Redis communication"
+resource "aws_security_group" "efs_mount" {
+  name        = "${var.name_prefix}-efs-sg"
+  description = "Security group for EFS mount target"
   vpc_id      = var.vpc_id
 
-  ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # open for testing; tighten in prod
-    description = "Allow Grafana HTTP"
-  }
-
-  ingress {
-    from_port       = 6379
-    to_port         = 6379
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ecs_tasks.id]
-    description     = "Allow Redis communication inside SG"
-  }
-
-  ingress {
-    from_port       = 2049
-    to_port         = 2049
-    protocol        = "tcp"
-    security_groups = [aws_security_group.efs_mount.id]
-    description     = "Allow NFS from EFS Mount SG"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound"
-  }
-
   tags = {
-    Name = "${var.project_name}-ecs-tasks"
+    Name = "${var.name_prefix}-efs-sg"
   }
 }
 
-resource "aws_security_group" "efs_mount" {
-  name        = "${var.project_name}-efs-mount"
-  description = "Allow NFS from ECS tasks"
+resource "aws_security_group" "ecs_tasks" {
+  name        = "${var.name_prefix}-ecs-sg"
+  description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
-  ingress {
-    from_port       = 2049
-    to_port         = 2049
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ecs_tasks.id]
-    description     = "Allow NFS from ECS tasks"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = {
-    Name = "${var.project_name}-efs-mount"
+    Name = "${var.name_prefix}-ecs-sg"
   }
+}
+
+# Allow ECS tasks to connect to EFS
+resource "aws_security_group_rule" "efs_allow_from_ecs" {
+  type                     = "ingress"
+  from_port                = 2049
+  to_port                  = 2049
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.efs_mount.id
+  source_security_group_id = aws_security_group.ecs_tasks.id
+  description              = "Allow ECS tasks to access EFS"
+}
+
+# Optional: Egress rule from ECS tasks to EFS (if your ECS security group blocks outbound by default)
+resource "aws_security_group_rule" "ecs_allow_efs_outbound" {
+  type                          = "egress"
+  from_port                     = 2049
+  to_port                       = 2049
+  protocol                      = "tcp"
+  security_group_id             = aws_security_group.ecs_tasks.id
+  destination_security_group_id = aws_security_group.efs_mount.id
+  description                   = "Allow ECS tasks to send traffic to EFS"
 }
