@@ -1,0 +1,6 @@
+# Terraform
+.terraform/
+*.tfplan
+*.tfstate
+*.tfstate.backup
+# .terraform.lock.hcl # Consider if you want to commit this for strict provider locking
