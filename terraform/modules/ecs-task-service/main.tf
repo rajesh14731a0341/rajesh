@@ -96,9 +96,9 @@ resource "aws_ecs_task_definition" "grafana_task" {
   volume {
     name = "grafana-data"
     efs_volume_configuration {
-      file_system_id          = var.efs_id
-      root_directory          = "/grafana-data"
-      transit_encryption      = "ENABLED"
+      file_system_id     = var.efs_id
+      root_directory     = "/grafana-data"
+      transit_encryption = "ENABLED"
       authorization_config {
         access_point_id = var.efs_access_point_id
         iam             = "ENABLED"
@@ -108,16 +108,16 @@ resource "aws_ecs_task_definition" "grafana_task" {
 }
 
 resource "aws_ecs_service" "grafana_service" {
-  name            = "${var.project_name}-service"
-  cluster         = var.cluster_name
-  task_definition = aws_ecs_task_definition.grafana_task.arn
-  desired_count   = var.desired_count
-  launch_type     = "FARGATE"
+  name             = "${var.project_name}-service"
+  cluster          = var.cluster_name
+  task_definition  = aws_ecs_task_definition.grafana_task.arn
+  desired_count    = var.desired_count
+  launch_type      = "FARGATE"
   platform_version = "LATEST"
 
   network_configuration {
-    subnets         = var.public_subnet_ids
-    security_groups = [var.ecs_tasks_sg_id]
+    subnets          = var.public_subnet_ids
+    security_groups  = [var.ecs_tasks_sg_id]
     assign_public_ip = true
   }
 

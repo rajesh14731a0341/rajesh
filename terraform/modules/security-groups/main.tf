@@ -7,7 +7,7 @@ resource "aws_security_group" "ecs_tasks" {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # open for testing; tighten in prod
+    cidr_blocks = ["0.0.0.0/0"] # open for testing; tighten in prod
     description = "Allow Grafana HTTP"
   }
 
